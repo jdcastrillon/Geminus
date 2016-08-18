@@ -4,6 +4,30 @@
         <param-name>javax.faces.PROJECT_STAGE</param-name>
         <param-value>Development</param-value>
     </context-param>
+    <context-param>
+        <param-name>BootsFaces_USE_VIEWPORT</param-name>
+        <param-value>false</param-value>
+    </context-param>
+    
+    <!-- The BootsFaces_THEME context-param controls the loading of the Themes -->
+    <!-- The default is Bootstrap, the valid values are a Bootswach Theme name (lowercase) or "custom".
+    If custom is chosen, you will have to provide your custom CSS in the "other" folder. -->
+    <context-param>
+        <param-name>BootsFaces_THEME</param-name>
+        <param-value>#{theme.internalTheme}</param-value>
+    </context-param>
+    <!-- The BootsFaces_USETHEME context-param controls the loading of the bootstrap-theme.css -->
+    <!-- The default is false, when set to true the bootstrap-theme.css will be loaded -->
+    <context-param>
+        <param-name>BootsFaces_USETHEME</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    <context-param>
+        <param-name>javax.faces.FACELETS_DECORATORS</param-name>
+        <param-value>
+            net.bootsfaces.decorator.BootsFacesTagDecorator
+        </param-value>
+    </context-param>
     <servlet>
         <servlet-name>Faces Servlet</servlet-name>
         <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
@@ -21,4 +45,8 @@
     <welcome-file-list>
         <welcome-file>faces/index.xhtml</welcome-file>
     </welcome-file-list>
+    <context-param>
+        <param-name>primefaces.THEME</param-name>
+        <param-value>bootstrap</param-value>
+    </context-param>
 </web-app>
