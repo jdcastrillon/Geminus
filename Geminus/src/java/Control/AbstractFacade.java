@@ -5,6 +5,7 @@
  */
 package Control;
 
+import Entity.Geminusturnos;
 import java.util.List;
 import javax.persistence.EntityManager;
 
@@ -60,5 +61,11 @@ public abstract class AbstractFacade<T> {
         javax.persistence.Query q = getEntityManager().createQuery(cq);
         return ((Long) q.getSingleResult()).intValue();
     }
-    
+
+    public List todo() {
+        List<String> liste = (List<String>) getEntityManager().createQuery("select concat(e.turno,',',e.programacion,',',e.transnochobool,',',e.medianochebool) turno from Geminusturnos e order by e.turno").getResultList();
+        System.out.println("------- : " + liste.size());
+        return liste;
+    }
+
 }

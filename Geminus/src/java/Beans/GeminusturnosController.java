@@ -1,235 +1,145 @@
 package Beans;
 
 import Entity.Geminusturnos;
-import Beans.util.JsfUtil;
-import Beans.util.PaginationHelper;
 import Control.GeminusturnosFacade;
+import Model.GeminusTurnosBool;
 
 import java.io.Serializable;
-import java.util.ResourceBundle;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.convert.Converter;
-import javax.faces.convert.FacesConverter;
-import javax.faces.model.DataModel;
-import javax.faces.model.ListDataModel;
-import javax.faces.model.SelectItem;
 
 @Named("geminusturnosController")
 @SessionScoped
 public class GeminusturnosController implements Serializable {
 
-    private Geminusturnos current;
-    private DataModel items = null;
+    private Geminusturnos geminus;
+    int valor;
+    List<String> list_geminus = new ArrayList();
+    List<GeminusTurnosBool> list_geminus_temp = new ArrayList();
+    List<Geminusturnos> list_geminus_t = new ArrayList();
     @EJB
-    private Control.GeminusturnosFacade ejbFacade;
-    private PaginationHelper pagination;
-    private int selectedItemIndex;
+    private Control.GeminusturnosFacade gem_manager;
+
+    private boolean t;
+    private boolean m;
 
     public GeminusturnosController() {
     }
 
-    public Geminusturnos getSelected() {
-        if (current == null) {
-            current = new Geminusturnos();
-            selectedItemIndex = -1;
-        }
-        return current;
+    @PostConstruct
+    public void init() {
+        list_geminus_temp.clear();
+        list_geminus.clear();
+        cargarTurnos();
     }
 
-    private GeminusturnosFacade getFacade() {
-        return ejbFacade;
-    }
-
-    public PaginationHelper getPagination() {
-        if (pagination == null) {
-            pagination = new PaginationHelper(10) {
-
-                @Override
-                public int getItemsCount() {
-                    return getFacade().count();
-                }
-
-                @Override
-                public DataModel createPageDataModel() {
-                    return new ListDataModel(getFacade().findRange(new int[]{getPageFirstItem(), getPageFirstItem() + getPageSize()}));
-                }
-            };
-        }
-        return pagination;
-    }
-
-    public String prepareList() {
-        recreateModel();
-        return "List";
-    }
-
-    public String prepareView() {
-        current = (Geminusturnos) getItems().getRowData();
-        selectedItemIndex = pagination.getPageFirstItem() + getItems().getRowIndex();
-        return "View";
-    }
-
-    public String prepareCreate() {
-        current = new Geminusturnos();
-        selectedItemIndex = -1;
-        return "Create";
-    }
-
-    public String create() {
-        try {
-            getFacade().create(current);
-            JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("GeminusturnosCreated"));
-            return prepareCreate();
-        } catch (Exception e) {
-            JsfUtil.addErrorMessage(e, ResourceBundle.getBundle("/Bundle").getString("PersistenceErrorOccured"));
-            return null;
+    public void cargarTurnos() {
+        valor = 1;
+        System.out.println("iniciooooooooooooooooooooooooooooo");
+        list_geminus = (List) gem_manager.todo();
+        for (String list_geminu : list_geminus) {
+            String[] objG = list_geminu.split(",");
+            GeminusTurnosBool g = new GeminusTurnosBool(objG[0].trim(), objG[1].trim(), objG[2].trim(), objG[3].trim());
+            System.out.println("-- "+objG[0].trim()+ "--"+ g.getMedianochebool());
+            g.setT(objG[2].trim().equalsIgnoreCase("true") ? true : false);
+            g.setM(objG[3].trim().equalsIgnoreCase("true") ? true : false);
+            System.out.println(": " + g.isM());
+            list_geminus_temp.add(g);
         }
     }
 
-    public String prepareEdit() {
-        current = (Geminusturnos) getItems().getRowData();
-        selectedItemIndex = pagination.getPageFirstItem() + getItems().getRowIndex();
-        return "Edit";
-    }
-
-    public String update() {
-        try {
-            getFacade().edit(current);
-            JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("GeminusturnosUpdated"));
-            return "View";
-        } catch (Exception e) {
-            JsfUtil.addErrorMessage(e, ResourceBundle.getBundle("/Bundle").getString("PersistenceErrorOccured"));
-            return null;
-        }
-    }
-
-    public String destroy() {
-        current = (Geminusturnos) getItems().getRowData();
-        selectedItemIndex = pagination.getPageFirstItem() + getItems().getRowIndex();
-        performDestroy();
-        recreatePagination();
-        recreateModel();
-        return "List";
-    }
-
-    public String destroyAndView() {
-        performDestroy();
-        recreateModel();
-        updateCurrentItem();
-        if (selectedItemIndex >= 0) {
-            return "View";
+    public void updateGminusTrurnoState(GeminusTurnosBool geminus, int condicion) {
+        System.out.println("_ " + geminus.toString());
+        int a = 0;
+        if (list_geminus_temp.contains(geminus)) {
+            a = list_geminus_temp.indexOf(geminus);
+            if (condicion == 1) {
+                list_geminus_temp.get(a).setM(geminus.isM());
+                list_geminus_temp.get(a).setMedianochebool(list_geminus_temp.get(a).isM() == true ? "true" : "false");
+            } else if (condicion == 2) {
+                list_geminus_temp.get(a).setT(geminus.isT());
+                list_geminus_temp.get(a).setTransnochobool(list_geminus_temp.get(a).isT() == true ? "true" : "false");
+            }
         } else {
-            // all items were removed - go back to list
-            recreateModel();
-            return "List";
+            System.out.println("nada");
         }
     }
 
-    private void performDestroy() {
+    public void update() {
         try {
-            getFacade().remove(current);
-            JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("GeminusturnosDeleted"));
-        } catch (Exception e) {
-            JsfUtil.addErrorMessage(e, ResourceBundle.getBundle("/Bundle").getString("PersistenceErrorOccured"));
-        }
-    }
-
-    private void updateCurrentItem() {
-        int count = getFacade().count();
-        if (selectedItemIndex >= count) {
-            // selected index cannot be bigger than number of items:
-            selectedItemIndex = count - 1;
-            // go to previous page if last page disappeared:
-            if (pagination.getPageFirstItem() >= count) {
-                pagination.previousPage();
+            for (GeminusTurnosBool list_geminu : list_geminus_temp) {
+                list_geminus_t.add(new Geminusturnos(list_geminu.getTurno(), list_geminu.getProgramacion(),
+                        list_geminu.getTransnochobool(), list_geminu.getMedianochebool()));
             }
-        }
-        if (selectedItemIndex >= 0) {
-            current = getFacade().findRange(new int[]{selectedItemIndex, selectedItemIndex + 1}).get(0);
-        }
-    }
-
-    public DataModel getItems() {
-        if (items == null) {
-            items = getPagination().createPageDataModel();
-        }
-        return items;
-    }
-
-    private void recreateModel() {
-        items = null;
-    }
-
-    private void recreatePagination() {
-        pagination = null;
-    }
-
-    public String next() {
-        getPagination().nextPage();
-        recreateModel();
-        return "List";
-    }
-
-    public String previous() {
-        getPagination().previousPage();
-        recreateModel();
-        return "List";
-    }
-
-    public SelectItem[] getItemsAvailableSelectMany() {
-        return JsfUtil.getSelectItems(ejbFacade.findAll(), false);
-    }
-
-    public SelectItem[] getItemsAvailableSelectOne() {
-        return JsfUtil.getSelectItems(ejbFacade.findAll(), true);
-    }
-
-    public Geminusturnos getGeminusturnos(java.lang.String id) {
-        return ejbFacade.find(id);
-    }
-
-    @FacesConverter(forClass = Geminusturnos.class)
-    public static class GeminusturnosControllerConverter implements Converter {
-
-        @Override
-        public Object getAsObject(FacesContext facesContext, UIComponent component, String value) {
-            if (value == null || value.length() == 0) {
-                return null;
+            for (Geminusturnos list_geminu2 : list_geminus_t) {
+                gem_manager.edit(list_geminu2);
             }
-            GeminusturnosController controller = (GeminusturnosController) facesContext.getApplication().getELResolver().
-                    getValue(facesContext.getELContext(), null, "geminusturnosController");
-            return controller.getGeminusturnos(getKey(value));
-        }
+            System.out.println("Existoso");
+        } catch (Exception ex) {
 
-        java.lang.String getKey(String value) {
-            java.lang.String key;
-            key = value;
-            return key;
         }
+    }
 
-        String getStringKey(java.lang.String value) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(value);
-            return sb.toString();
-        }
+    public List<String> getList_geminus() {
+        return list_geminus;
+    }
 
-        @Override
-        public String getAsString(FacesContext facesContext, UIComponent component, Object object) {
-            if (object == null) {
-                return null;
-            }
-            if (object instanceof Geminusturnos) {
-                Geminusturnos o = (Geminusturnos) object;
-                return getStringKey(o.getTurno());
-            } else {
-                throw new IllegalArgumentException("object " + object + " is of type " + object.getClass().getName() + "; expected type: " + Geminusturnos.class.getName());
-            }
-        }
+    public void setList_geminus(List<String> list_geminus) {
+        this.list_geminus = list_geminus;
+    }
 
+    public Geminusturnos getGeminus() {
+        return geminus;
+    }
+
+    public void setGeminus(Geminusturnos geminus) {
+        this.geminus = geminus;
+    }
+
+    public GeminusturnosFacade getGem_manager() {
+        return gem_manager;
+    }
+
+    public void setGem_manager(GeminusturnosFacade gem_manager) {
+        this.gem_manager = gem_manager;
+    }
+
+    public int getValor() {
+        return valor;
+    }
+
+    public void setValor(int valor) {
+        this.valor = valor;
+    }
+
+    public boolean isT() {
+        return t;
+    }
+
+    public void setT(boolean t) {
+        this.t = t;
+    }
+
+    public boolean isM() {
+        return m;
+    }
+
+    public void setM(boolean m) {
+        this.m = m;
+    }
+
+    public List<GeminusTurnosBool> getList_geminus_temp() {
+        return list_geminus_temp;
+    }
+
+    public void setList_geminus_temp(List<GeminusTurnosBool> list_geminus_temp) {
+        this.list_geminus_temp = list_geminus_temp;
     }
 
 }
