@@ -5,6 +5,8 @@
  */
 package Model;
 
+import java.util.Date;
+
 /**
  *
  * @author admin
@@ -14,6 +16,7 @@ public class Compensado {
     private String nombre;
     private int dias;
     private int numero;
+    private Date fecha;
     
 
     public Compensado() {
@@ -24,6 +27,12 @@ public class Compensado {
         this.nombre = nombre;
         this.dias = dias;
         this.numero=numero;
+    }
+
+    public Compensado(String Trabajador, int dias, Date fecha) {
+        this.Trabajador = Trabajador;
+        this.dias = dias;
+        this.fecha = fecha;
     }
 
  
@@ -66,6 +75,15 @@ public class Compensado {
         this.numero = numero;
     }
 
+    public Date getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(Date fecha) {
+        this.fecha = fecha;
+    }
+
+    
   
 
   

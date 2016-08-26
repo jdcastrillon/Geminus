@@ -65,7 +65,7 @@ public class GeminusCompen implements Serializable {
     Growl growl = new Growl();
 
     @PostConstruct
-    public void init() {        
+    public void init() {
         growl.setLife(5000);
         Listcomp.clear();
     }
@@ -96,28 +96,7 @@ public class GeminusCompen implements Serializable {
     public void RecuperarFechas() {
         SimpleDateFormat format2 = new SimpleDateFormat("dd/M/yyyy");
         this.f1 = format2.format(fecha1);
-        this.f2 = format2.format(fecha2);
-        this.fechaQuery1 = "";
-        this.fechaQuery2 = "";
-        int condicion = 0;
-        String datosF1[] = f1.split("/");
-        String datosF2[] = f2.split("/");
-        Calendar c = Calendar.getInstance();
-        c.set(Integer.parseInt(datosF1[2]), Integer.parseInt(datosF1[1]), Integer.parseInt(datosF1[0]));
-
-        while (fechaQuery1.length() == 0 || fechaQuery2.length() == 0) {
-            if (c.get(Calendar.DAY_OF_WEEK) == 4 && condicion == 0) {
-                condicion = 1;
-                c.add(Calendar.MONTH, -1);
-                this.fechaQuery1 = "" + format2.format(c.getTime());
-                c.add(Calendar.MONTH, 1);
-            } else if (c.get(Calendar.DAY_OF_WEEK) == 4 && condicion == 1) {
-                c.add(Calendar.MONTH, -1);
-                this.fechaQuery2 = "" + format2.format(c.getTime());
-                c.add(Calendar.MONTH, 1);
-            }
-            c.add(Calendar.DAY_OF_YEAR, 1);
-        }
+        this.f2 = format2.format(fecha2);       
     }
 
     public void reporteCompensado() throws SQLException {
@@ -171,29 +150,32 @@ public class GeminusCompen implements Serializable {
         }
     }
 
-    public void liquidarCompensados() throws IOException {
-        RecuperarFechas();
+    public void liquidarCompensados() throws IOException, SQLException {
+        SimpleDateFormat format2 = new SimpleDateFormat("dd/M/yyyy");
         boolean r = false;
         try {
             ConecionOracle.conectar();
-            for (Compensado LC : Listcomp) {
-                System.out.println("entro a Borrar " + f1 + " FEcha 2 : " + f2 + " trabajador " + LC.getTrabajador());
-                ConecionOracle.ejecuteUpdate("delete from re_descansos_laborados where DL_fecha between '" + f1 + "' and '" + f2 + "'  and DL_COD_EMPLEADO='" + LC.getTrabajador() + "'");
+            ArrayList<Compensado> listFechas=new ArrayList();
+            for (Compensado LC : Listcomp) {                
+                ConecionOracle.ejecuteUpdate("delete from re_descansos_laborados where DL_fecha between '" + f1 + "' and '" + f2 + "' ");
             }
-            int a = 0;
+            int a = 1;
             for (Compensado LC : Listcomp) {
-                a = 0;
-                while (a < LC.getDias()) {
+                a = 1;
+                ConecionOracle.ejecuteQuery("select pj_fecha from RE_PROGRAMACION_JORNADAS where pj_empleado='"+LC.getTrabajador()+"' \n"
+                        + "and pj_fecha between '"+f1+"' and '"+f2+"' "
+                        + "and rtrim(ltrim(to_char(pj_fecha, 'DAY','NLS_DATE_LANGUAGE=SPANISH')))='DOMINGO' and  rownum<="+LC.getDias());
+                while(ConecionOracle.rs.next()){
+                    listFechas.add(new Compensado(LC.getTrabajador(),a,ConecionOracle.rs.getDate(1)));
                     a++;
-                    if (a == 1) {
-                        ConecionOracle.ejecuteUpdate("insert into re_descansos_laborados values('" + LC.getTrabajador() + "',"
-                                + "to_date('" + fechaQuery1 + "','DD/MM/YYYY'))");
-                    } else if (a == 2) {
-                        ConecionOracle.ejecuteUpdate("insert into re_descansos_laborados values('" + LC.getTrabajador() + "',"
-                                + "to_date('" + fechaQuery2 + "','DD/MM/YYYY'))");
-                    }
-                }
+                }                
             }
+            
+            for (Compensado listFecha : listFechas) {
+                ConecionOracle.ejecuteUpdate("insert into re_descansos_laborados values('" + listFecha.getTrabajador()+ "',"
+                                + "to_date('" + format2.format(listFecha.getFecha()) + "','DD/MM/YYYY'))");
+            }
+
             ConecionOracle.ejecuteUpdate("commit");
             r = true;
         } catch (ClassNotFoundException ex) {
