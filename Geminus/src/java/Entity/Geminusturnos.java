@@ -28,8 +28,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Geminusturnos.findAll", query = "SELECT g FROM Geminusturnos g"),
     @NamedQuery(name = "Geminusturnos.findByTurno", query = "SELECT g FROM Geminusturnos g WHERE g.turno = :turno"),
     @NamedQuery(name = "Geminusturnos.findByProgramacion", query = "SELECT g FROM Geminusturnos g WHERE g.programacion = :programacion"),
-    @NamedQuery(name = "Geminusturnos.findByTrasnocho", query = "SELECT g FROM Geminusturnos g WHERE g.trasnocho = :trasnocho"),
-    @NamedQuery(name = "Geminusturnos.findByMedianoche", query = "SELECT g FROM Geminusturnos g WHERE g.medianoche = :medianoche")})
+   })
 public class Geminusturnos implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -44,17 +43,26 @@ public class Geminusturnos implements Serializable {
     @Size(min = 1, max = 100)
     @Column(name = "PROGRAMACION")
     private String programacion;
+    
+    
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 2)
-    @Column(name = "TRASNOCHO")
-    private String trasnocho;
+    @Size(min = 1, max = 5)
+    @Column(name = "TRANSNOCHO_B")
+    private String transnochobool;
+    
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 2)
-    @Column(name = "MEDIANOCHE")
-    private String medianoche;
+    @Size(min = 1, max = 5)
+    @Column(name = "MEDIANOCHE_B")
+    private String medianochebool;
+    
+   
+   
 
+    
+    
+   
     public Geminusturnos() {
     }
 
@@ -62,13 +70,20 @@ public class Geminusturnos implements Serializable {
         this.turno = turno;
     }
 
-    public Geminusturnos(String turno, String programacion, String trasnocho, String medianoche) {
+    public Geminusturnos(String turno, String programacion) {
         this.turno = turno;
         this.programacion = programacion;
-        this.trasnocho = trasnocho;
-        this.medianoche = medianoche;
     }
 
+    public Geminusturnos(String turno, String programacion, String transnochobool, String medianochebool) {
+        this.turno = turno;
+        this.programacion = programacion;
+        this.transnochobool = transnochobool;
+        this.medianochebool = medianochebool;
+    }
+    
+   
+    
     public String getTurno() {
         return turno;
     }
@@ -85,21 +100,6 @@ public class Geminusturnos implements Serializable {
         this.programacion = programacion;
     }
 
-    public String getTrasnocho() {
-        return trasnocho;
-    }
-
-    public void setTrasnocho(String trasnocho) {
-        this.trasnocho = trasnocho;
-    }
-
-    public String getMedianoche() {
-        return medianoche;
-    }
-
-    public void setMedianoche(String medianoche) {
-        this.medianoche = medianoche;
-    }
 
     @Override
     public int hashCode() {
@@ -123,7 +123,47 @@ public class Geminusturnos implements Serializable {
 
     @Override
     public String toString() {
-        return "Entity.Geminusturnos[ turno=" + turno + " ]";
+        return "Geminusturnos{" + "turno=" + turno + ", programacion=" + programacion + ", transnochobool=" + transnochobool + ", medianochebool=" + medianochebool  + '}';
     }
+
+
+
+
+    
+
+    public String getTransnochobool() {
+        return transnochobool;
+    }
+
+    public void setTransnochobool(String transnochobool) {
+        this.transnochobool = transnochobool;
+    }
+
+    public String getMedianochebool() {
+        return medianochebool;
+    }
+
+    public void setMedianochebool(String medianochebool) {
+        this.medianochebool = medianochebool;
+    }
+
+   
+    public boolean hasNext() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+ 
+
+ 
+
+  
+    
+    
+
+
+    
+    
+
+   
     
 }

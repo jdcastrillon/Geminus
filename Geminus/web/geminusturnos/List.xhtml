@@ -3,64 +3,54 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:b="http://bootsfaces.net/ui"
+      xmlns:p="http://primefaces.org/ui"  
       xmlns:f="http://xmlns.jcp.org/jsf/core">
-
-    <ui:composition template="/template.xhtml">
+    <ui:composition template="../template_1.xhtml">
         <ui:define name="title">
             <h:outputText value="#{bundle.ListGeminusturnosTitle}"></h:outputText>
         </ui:define>
         <ui:define name="body">
-            <h:form styleClass="jsfcrud_list_form">
-                <h:panelGroup id="messagePanel" layout="block">
-                    <h:messages errorStyle="color: red" infoStyle="color: green" layout="table"/>
-                </h:panelGroup>
-                <h:outputText escape="false" value="#{bundle.ListGeminusturnosEmpty}" rendered="#{geminusturnosController.items.rowCount == 0}"/>
-                <h:panelGroup rendered="#{geminusturnosController.items.rowCount > 0}">
-                    <h:outputText value="#{geminusturnosController.pagination.pageFirstItem + 1}..#{geminusturnosController.pagination.pageLastItem + 1}/#{geminusturnosController.pagination.itemsCount}"/>&nbsp;
-                    <h:commandLink action="#{geminusturnosController.previous}" value="#{bundle.Previous} #{geminusturnosController.pagination.pageSize}" rendered="#{geminusturnosController.pagination.hasPreviousPage}"/>&nbsp;
-                    <h:commandLink action="#{geminusturnosController.next}" value="#{bundle.Next} #{geminusturnosController.pagination.pageSize}" rendered="#{geminusturnosController.pagination.hasNextPage}"/>&nbsp;
-                    <h:dataTable value="#{geminusturnosController.items}" var="item" border="0" cellpadding="2" cellspacing="0" rowClasses="jsfcrud_odd_row,jsfcrud_even_row" rules="all" style="border:solid 1px">
-                        <h:column>
-                            <f:facet name="header">
-                                <h:outputText value="#{bundle.ListGeminusturnosTitle_turno}"/>
-                            </f:facet>
-                            <h:outputText value="#{item.turno}"/>
-                        </h:column>
-                        <h:column>
-                            <f:facet name="header">
-                                <h:outputText value="#{bundle.ListGeminusturnosTitle_programacion}"/>
-                            </f:facet>
-                            <h:outputText value="#{item.programacion}"/>
-                        </h:column>
-                        <h:column>
-                            <f:facet name="header">
-                                <h:outputText value="#{bundle.ListGeminusturnosTitle_trasnocho}"/>
-                            </f:facet>
-                            <h:outputText value="#{item.trasnocho}"/>
-                        </h:column>
-                        <h:column>
-                            <f:facet name="header">
-                                <h:outputText value="#{bundle.ListGeminusturnosTitle_medianoche}"/>
-                            </f:facet>
-                            <h:outputText value="#{item.medianoche}"/>
-                        </h:column>
-                        <h:column>
-                            <f:facet name="header">
-                                <h:outputText value="&nbsp;"/>
-                            </f:facet>
-                            <h:commandLink action="#{geminusturnosController.prepareView}" value="#{bundle.ListGeminusturnosViewLink}"/>
-                            <h:outputText value=" "/>
-                            <h:commandLink action="#{geminusturnosController.prepareEdit}" value="#{bundle.ListGeminusturnosEditLink}"/>
-                            <h:outputText value=" "/>
-                            <h:commandLink action="#{geminusturnosController.destroy}" value="#{bundle.ListGeminusturnosDestroyLink}"/>
-                        </h:column>
-                    </h:dataTable>
-                </h:panelGroup>
-                <br />
-                <h:commandLink action="#{geminusturnosController.prepareCreate}" value="#{bundle.ListGeminusturnosCreateLink}"/>
-                <br />
-                <br />
-                <h:link outcome="/index" value="#{bundle.ListGeminusturnosIndexLink}"/>
+            <h:form id="form" >
+                <b:panel>
+                    <p:messages id="messages" showDetail="true" autoUpdate="true" closable="true" />                   
+                    <p:dataTable id="tac" var="turno" value="#{geminusturnosController.list_geminus_temp}" 
+                                 rows="15"
+                                 paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="15,30,50">
+                        <p:column headerText="Turno">
+                            <h:outputText value="#{turno.turno}"></h:outputText>
+                        </p:column>
+                        <p:column headerText="Programacion">
+                            <h:outputText value="#{turno.programacion}"></h:outputText>
+                        </p:column>
+                        <p:column headerText="Trasnocho">
+                            <center>
+                                <p:selectBooleanCheckbox value="#{turno.t}">
+                                    <p:ajax  listener="#{geminusturnosController.updateGminusTrurnoState(turno,2)}" />
+                                </p:selectBooleanCheckbox>
+                            </center>
+                        </p:column>
+                        <p:column headerText="Medianoche2">
+                            <h:outputText value="#{turno.m}"></h:outputText>         
+                        </p:column>
+                        <p:column headerText="Medianoche">
+                            <center>
+                                <p:selectBooleanCheckbox value="#{turno.m}">
+                                    <p:ajax  listener="#{geminusturnosController.updateGminusTrurnoState(turno,1)}" />
+                                </p:selectBooleanCheckbox>
+                            </center>                       
+                        </p:column>
+                    </p:dataTable>
+                    <br></br>
+                    <center>
+                        <b:commandButton value="Liquidar" ajax="true" look="primary"
+                                         actionListener="#{geminusturnosController.update()}"  />
+
+                    </center>
+
+                </b:panel>
             </h:form>
         </ui:define>
     </ui:composition>
